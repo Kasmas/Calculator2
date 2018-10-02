@@ -1,35 +1,37 @@
-CFLAGS = -Wall -Werror -MP -MMD
-SOURCES = src/main.c src/function.h
-.PHONY: clean all Calculator2 test
+.PHONY: clean all test 
+CFLAGS = -Wall -Werror -MP -MMD 
 
-all :
-	make bin/function
+all: bin/equation.exe 
 
-bin/function : build/main.o
-	gcc build/main.o -o bin/function $(CFLAGS)
+bin/equation.exe: build/main.o build/function.o 
+	gcc $(CFLAGS) build/main.o build/function.o -o bin/equation.exe -lm
 
-build/main.o : src/main.c src/function.h
-	gcc -c src/main.c -o build/main.o $(CFLAGS)
+build/main.o: src/main.c src/function.h
+	gcc $(CFLAGS) -c src/main.c -o build/main.o -lm
 
-test:
-	make bin/function_test
-	bin/function_test
+build/function.o: src/function.c src/function.h 
+	gcc $(CFLAGS) -c src/function.c -o build/function.o -lm
 
-bin/function_test : build/test/main.o build/test/function_test.o
-	gcc build/test/main.o build/test/function_test.o build/test/main.o -o bin/function_test $(CFLAGS)
+test: 
+	make bin/equation_test.exe 
+	bin/equation_test.exe 
 
-build/test/main.o : src/function.h test/main.c
-	gcc -I thirdparty -c test/main.c -o build/test/main.o $(CFLAGS)
-	gcc -c src/main.c -o build/test/main.o $(CFLAGS) 
+bin/equation_test.exe: build/test/main.o build/test/function_test.o
+	@gcc $(CFLAGS) build/test/main.o build/test/function_test.o build/function.o -o bin/equation_test.exe -lm
+	
+build/test/main.o: test/main.c src/function.h
+	@gcc $(CFLAGS) -I thirdparty -c test/main.c -o build/test/main.o  -lm
 
-build/test/function_test.o : src/function.h test/function_test.c thirdparty/ctest.h
-	gcc -c -I thirdparty test/function_test.c -o build/test/function_test.o $(CFLAGS)
+build/test/function_test.o: src/function.h test/function_test.c
+	@gcc $(CFlAGS) -I thirdparty -c test/function_test.c -o build/test/function_test.o  -lm 
 
-build/test/main.o : src/function.h src/main.c
-	gcc -c src/main.c -o build/test/main.o $(CFLAGS)
+clean:
+	@echo "Cleaning files in build directory" 	
+	@rm -rf build/*.d build/*.o 
+	@rm -rf build/test/*.d build/test/*.o
+	@echo "Cleaning binaries"
+	@rm -rf bin/equation.exe 
+	@rm -rf bin/equation_test.exe 
+	@echo "All files have been cleaned."	
 
-clean :
-	@rm -rf build/*.d build/test/*.d 
-	@rm -rf build/*.o build/test/*.o
-	@rm bin/function bin/function_test
-	@echo "All files have been cleaned."
+-include build/*.d
