@@ -25,7 +25,7 @@ CTEST(Polozh_na_otric, vichitanye)
 CTEST(Otric_na_polozh, vichitanye)
   {
     int result = vichitanye(-2, 3);
-    int expected = 1;
+    int expected = -5;
     ASSERT_EQUAL(expected, result);
    }
    
